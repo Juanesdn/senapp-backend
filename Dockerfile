@@ -12,4 +12,4 @@ RUN yarn install --pure-lockfile
 
 COPY --chown=node:node . .
 
-CMD ["yarn", "start"]
+CMD ["yarn", "dev"]
