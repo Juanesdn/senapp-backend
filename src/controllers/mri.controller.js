@@ -1,12 +1,33 @@
 const httpStatus = require('http-status');
+const fs = require('fs');
+const util = require('util');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { mriService } = require('../services');
+const { uploadFile, getFile } = require('../utils/S3');
+
+const unlinkFile = util.promisify(fs.unlink);
 
 const createMRI = catchAsync(async (req, res) => {
-  const MRI = await mriService.createMRI(req.body);
-  res.status(httpStatus.CREATED).send({ MRI, createdAt: MRI.createdAt });
+  const { file } = req;
+  const { age, user, genre, observations } = req.body;
+  const result = await uploadFile(file);
+  await unlinkFile(file.path);
+  const MRI = await mriService.createMRI({
+    age,
+    user,
+    genre,
+    image: result.Location,
+    observations,
+  });
+  res.status(httpStatus.CREATED).send({ mri: MRI, createdAt: MRI.createdAt });
+});
+
+const getMRIPicture = catchAsync(async (req, res) => {
+  const { key } = req.params;
+  const readStream = getFile(key);
+  readStream.pipe(res);
 });
 
 const getMRIS = catchAsync(async (req, res) => {
@@ -42,5 +63,6 @@ module.exports = {
   getMRIS,
   getMRI,
   deleteMRI,
+  getMRIPicture,
   getMriByDate,
 };

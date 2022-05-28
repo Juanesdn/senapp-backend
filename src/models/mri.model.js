@@ -21,6 +21,9 @@ const mriSchema = mongoose.Schema(
       type: String,
       enum: ['Femenino', 'Masculino', 'Otro'],
     },
+    observations: {
+      type: String,
+    },
   },
   {
     timestamps: true,

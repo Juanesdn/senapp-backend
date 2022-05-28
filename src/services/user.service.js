@@ -80,11 +80,15 @@ const deleteUserById = async (userId) => {
 };
 
 const getUserMRIS = async (userId) => {
-  const user = await getUserById(userId);
+  const user = await User.findById(userId).populate('mris');
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  return user.mris;
+
+  const mris = user.mris.sort((a, b) => {
+    return b.createdAt - a.createdAt;
+  });
+  return mris;
 };
 
 const getLastMRI = async (userId) => {
@@ -92,6 +96,7 @@ const getLastMRI = async (userId) => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
+
   return user.mris[user.mris.length - 1] || new ApiError(httpStatus.NOT_FOUND, 'MRI not found');
 };
 
