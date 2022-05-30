@@ -11,7 +11,7 @@ const unlinkFile = util.promisify(fs.unlink);
 
 const createMRI = catchAsync(async (req, res) => {
   const { file } = req;
-  const { age, user, genre, observations } = req.body;
+  const { age, user, genre, observations, classification } = req.body;
   const result = await uploadFile(file);
   await unlinkFile(file.path);
   const MRI = await mriService.createMRI({
@@ -20,6 +20,7 @@ const createMRI = catchAsync(async (req, res) => {
     genre,
     image: result.Location,
     observations,
+    classification,
   });
   res.status(httpStatus.CREATED).send({ mri: MRI, createdAt: MRI.createdAt });
 });
